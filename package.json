@@ -1,0 +1,58 @@
+{
+  "name": "orchardcore-cli",
+  "version": "1.0.0",
+  "description": "Orchard Core CLI tool",
+  "main": "bin/orchardcore.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "orchardcore": "bin/orchardcore.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OrchardCMS/orchardcore-cli.git"
+  },
+  "author": "The Orchard Core Team",
+  "homepage": "https://github.com/OrchardCMS/orchardcore-cli#readme",
+  "license": "MIT",
+  "preferGlobal": true,
+  "scripts": {
+    "start": "nodemon --exec npm run build -w src",
+    "build": "npm-run-all compile",
+    "compile": "tsc --build",
+    "lint": "tslint src/**/*.ts"
+  },
+  "yargs": {
+    "boolean-negation": false
+  },
+  "devDependencies": {
+    "@types/yargs": "^12.0.1",
+    "@types/graphql": "^14.0.3",
+    "@types/node": "^10.12.3",
+    "nodemon": "^1.18.3",
+    "pkg": "^4.3.3",
+    "rimraf": "^2.6.1",
+    "npm-run-all": "^4.1.3",
+    "tslint": "^5.11.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.1.6",
+    "graphql": "^14.0.2",
+    "graphql-tag": "^2.10.0"
+  },
+  "dependencies": {
+    "colors": "^1.3.2",
+    "fs-extra": "^7.0.1",
+    "underscore": "^1.9.1",
+    "yargs": "^12.0.2",
+    "node-fetch": "^2.2.1",
+    "graphql-binding": "^2.2.6",
+    "apollo-link-http": "^1.5.5",
+    "apollo-link-context": "^1.0.9",
+    "graphql-tools": "^4.0.3"
+  },
+  "files": [
+    "lib"
+  ],
+  "nodemonConfig": {
+    "params": "-help"
+  }
+}
