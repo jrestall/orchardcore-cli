@@ -8,8 +8,11 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}\\bin\\orchardcore.js",
+            "program": "${workspaceFolder}/bin/orchardcore.js",
             "preLaunchTask": "tsc: build - tsconfig.json",
+            "args": [
+                "vote", "-h"
+            ],
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ]

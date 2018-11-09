@@ -34,15 +34,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var yargs_1 = __importDefault(require("yargs"));
+var yargs = __importStar(require("yargs"));
 var graphql_1 = require("./graphql");
-console.log("Welcome to Orchard Core CLI");
-yargs_1.default.usage('\nUsage: orchardcore <cmd> [args]')
-    //.commandDir('cmds')
+console.log('Welcome to Orchard Core CLI');
+var argv = yargs.usage('\nUsage: orchardcore <cmd> [args]')
+    .commandDir('cmds')
     .demandCommand(1, 'Please specify a command.')
     .help('h')
     .alias('h', 'help')
@@ -55,14 +59,14 @@ yargs_1.default.usage('\nUsage: orchardcore <cmd> [args]')
     console.error(msg);
     process.exit(1);
 });
-loadCommands(yargs_1.default)
+loadCommands(argv)
     .then(function (x) { return x.argv; });
 function loadCommands(args) {
     return __awaiter(this, void 0, void 0, function () {
         var binding;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, graphql_1.getCommandBinding("http://api.githunt.com/graphql")];
+                case 0: return [4 /*yield*/, graphql_1.getCommandBinding('http://api.githunt.com/graphql')];
                 case 1:
                     binding = _a.sent();
                     binding.commands.forEach(function (command) { args.command(command); });

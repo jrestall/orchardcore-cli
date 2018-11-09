@@ -1,10 +1,11 @@
-import yargs, {Argv} from 'yargs'
+import * as yargs from 'yargs'
+import { Argv } from 'yargs'
 import { getCommandBinding } from './graphql'
 
-console.log("Welcome to Orchard Core CLI")
+console.log('Welcome to Orchard Core CLI')
 
-yargs.usage('\nUsage: orchardcore <cmd> [args]')
-  //.commandDir('cmds')
+let argv = yargs.usage('\nUsage: orchardcore <cmd> [args]')
+  .commandDir('cmds')
   .demandCommand(1, 'Please specify a command.')
   .help('h')
   .alias('h', 'help')
@@ -18,13 +19,13 @@ yargs.usage('\nUsage: orchardcore <cmd> [args]')
     process.exit(1)
   })
 
-loadCommands(yargs)
+loadCommands(argv)
   .then(x => x.argv)
 
-async function loadCommands(args: Argv) : Promise<Argv> {
+async function loadCommands(args: Argv): Promise<Argv> {
   // Load all graphql mutations as yarg commands
-  var binding = await getCommandBinding("http://api.githunt.com/graphql");
-  binding.commands.forEach(command => { args.command(command) }); 
+  let binding = await getCommandBinding('http://api.githunt.com/graphql')
+  binding.commands.forEach(command => { args.command(command) })
 
-  return args;
+  return args
 }

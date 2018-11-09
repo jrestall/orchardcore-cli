@@ -43,12 +43,12 @@ var CommandBinding = /** @class */ (function (_super) {
         var binding = this;
         return {
             command: this.buildCommandString(fieldName, field),
-            describe: field.description != null ? field.description : false,
+            describe: this.buildDescription(field),
             handler: function (args) {
                 return _this.delegate(operation, fieldName, args);
             },
             builder: function (yargs) {
-                return binding.buildCommandArguments(yargs, field);
+                return binding.buildCommandArguments(yargs, field.args);
             }
         };
     };
@@ -58,36 +58,75 @@ var CommandBinding = /** @class */ (function (_super) {
         if (!hasArgs) {
             return command;
         }
-        field.args.forEach(function (arg) {
-            if (graphql_1.isNullableType(arg.type)) {
-                command += " [" + arg.name + "]";
-            }
-            else {
-                command += " <" + arg.name + ">";
-            }
-        });
+        command += this.buildCommandArgumentsString(field.args);
         return command;
     };
-    CommandBinding.prototype.buildCommandArguments = function (yargs, field) {
+    CommandBinding.prototype.buildCommandArgumentsString = function (args) {
         var _this = this;
-        var hasArgs = field.args.length > 0;
-        if (!hasArgs) {
-            return yargs;
+        var result = '';
+        args.forEach(function (arg) {
+            if (arg.type instanceof graphql_1.GraphQLObjectType) {
+                var objectFields = arg.type.getFields();
+                Object.entries(objectFields).forEach(function (_a) {
+                    var objectFieldName = _a[0], objectField = _a[1];
+                    result += _this.buildCommandArgumentsString(objectField.args);
+                });
+            }
+            else {
+                result += graphql_1.isNullableType(arg.type) || arg.defaultValue ? " [" + arg.name + "]" : " <" + arg.name + ">";
+            }
+        });
+        return result;
+    };
+    CommandBinding.prototype.buildDescription = function (field) {
+        if (field.isDeprecated === true) {
+            return "[Deprecated] " + field.description;
         }
-        field.args.forEach(function (arg) {
-            yargs.positional(arg.name, {
-                describe: arg.description != null ? arg.description : undefined,
-                type: _this.GetArgumentType(arg.type),
-                default: arg.defaultValue
-            });
+        return field.description ? field.description : false;
+    };
+    CommandBinding.prototype.buildCommandArguments = function (yargs, args) {
+        var _this = this;
+        args.forEach(function (arg) {
+            var nullableType = graphql_1.getNullableType(arg.type);
+            if (nullableType instanceof graphql_1.GraphQLObjectType) {
+                var objectFields = nullableType.getFields();
+                Object.entries(objectFields).forEach(function (_a) {
+                    var objectFieldName = _a[0], objectField = _a[1];
+                    _this.buildCommandArguments(yargs, objectField.args);
+                });
+            }
+            else {
+                var options = {
+                    describe: arg.description != null ? arg.description : undefined,
+                    type: _this.getArgumentType(nullableType),
+                    default: arg.defaultValue
+                };
+                if (graphql_1.isEnumType(nullableType)) {
+                    options.choices = _this.getArgumentChoices(nullableType);
+                }
+                yargs.positional(arg.name, options);
+            }
         });
         return yargs;
     };
-    CommandBinding.prototype.GetArgumentType = function (type) {
-        if (graphql_1.isScalarType(type)) {
+    CommandBinding.prototype.getArgumentType = function (type) {
+        if (!graphql_1.isScalarType(type)) {
             return 'string';
         }
+        var scalarType = type;
+        if (scalarType.name === 'Boolean') {
+            return 'boolean';
+        }
+        else if (scalarType.name === 'Int' || scalarType.name === 'Float') {
+            return 'number';
+        }
         return 'string';
+    };
+    CommandBinding.prototype.getArgumentChoices = function (type) {
+        var enumValues = type.getValues();
+        return enumValues.map(function (enumValue) {
+            return enumValue.value;
+        });
     };
     return CommandBinding;
 }(graphql_binding_1.Delegate));

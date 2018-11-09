@@ -76,7 +76,9 @@ function getCommandBinding(uri) {
             switch (_a.label) {
                 case 0:
                     link = getLink(uri);
-                    return [4 /*yield*/, getExecutableSchema(link)];
+                    return [4 /*yield*/, getExecutableSchema(link)
+                        // Create the `before` function
+                    ];
                 case 1:
                     schema = _a.sent();
                     before = function () { return console.log("Sending a request to Orchard Core ..."); };

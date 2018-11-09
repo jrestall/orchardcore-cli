@@ -1,78 +1,52 @@
-# [NAME]
+# Orchard Core CLI
 
-**Description of project goes here.**
+> [Orchard Core's](https://www.orchardproject.net) command line interface tool. Use Orchard Core features straight from your CLI.
+
+[![npm](https://img.shields.io/npm/v/orchardcore-cli.svg)](https://www.npmjs.com/package/orchardcore-cli)
+
+[Orchard Core](https://github.com/OrchardCMS/OrchardCore/issues) provides a free, open source, community-focused Content Management System built on the ASP.NET MVC platform.
+
+## Features
+
+The Orchard Core CLI will expose the GraphQL mutations that are available on your Orchard Core server as commands that can be executed from the command line.
+
+[TODO]
+Securely login and logout with our [OAuth service](https://orchardcore.readthedocs.io/en/latest/OrchardCore.Modules/OrchardCore.OpenId/README/).
 
 ## Installation
 
-First, if you have not done so already, install [Homebrew](http://brew.sh/):
+Using [npm](http://npmjs.org):
 
-```bash
-$ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+``` sh
+npm install -g orchardcore-cli
 ```
 
-Next, install [Node.js](https://nodejs.org/en/):
-
-```bash
-$ brew install node
-# Tip! Run this on a regular basis:
-$ brew doctor && brew update && brew upgrade && brew cleanup && brew prune && brew doctor
-```
-
-Once the above steps are complete, and your system is happy …
-
-### Install [NAME] via npm
-
-```bash
-$ npm i [NPM] -g
-```
-
-<mark>Alternative installation options; putting here as reminders, feel free to remove the ones you are not using:</mark>
-
-### GitHub, public repo
-
-```bash
-$ npm i [USER]/[REPO] -g
-```
-
-### GitHub, private repo
-
-```bash
-$ npm i git+https://token:x-oauth-basic@github.com/[USER]/[REPO].git#master -g
-# … or:
-$ npm i git+ssh://git@github.com/[USER]/[REPO].git#master -g
-```
-
-### Bitbucket, public repo
-
-```bash
-$ npm i git+ssh://git@bitbucket.org/[USER]/[REPO].git#master -g
-```
-
-### Bitbucket, private repo
-
-```bash
-$ npm i git+https://username:password@bitbucket.org/[USER]/[REPO].git#master -g
-# … or:
-$ npm i git+ssh://git@bitbucket.org/[USER]/[REPO].git#master -g
+Using [yarn](https://yarnpkg.com):
+``` sh
+yarn global add orchardcore-cli
 ```
 
 ## Usage
 
-Activate in current directory:
+First, you must configure the Orchard Core instance the CLI will manage. You must point it directly to the graphql endpoint.
 
 ```bash
-$ cd to/a/directory/
-$ [COMMAND] -d .
+$ orchardcore config-cli "https://{your-domain}/graphql" 
 ```
 
-… or, specify path to a directory:
+… then, you can request all available commands for the configured instance:
 
 ```bash
-$ [COMMAND] -d to/a/directory/
+$ orchardcore -help
 ```
 
-Get help:
+… or, see help for a specific command:
 
 ```bash
-$ [COMMAND] -h
+$ orchardcore createTenant -h
 ```
+
+## Further Support
+
+The documentation can be accessed here: [https://orchardcore.readthedocs.io/en/latest/](https://orchardcore.readthedocs.io/en/latest/)
+Exchange with our friendly community on our [forum](https://gitter.im/OrchardCMS/OrchardCore)
