@@ -31,10 +31,10 @@ yarn global add orchardcore-cli
 First, you must configure the Orchard Core instance the CLI will manage. You must point it directly to the graphql endpoint.
 
 ```bash
-$ orchardcore config-cli "https://{your-domain}/graphql" 
+$ orchardcore config --host "https://{your-domain}/graphql" 
 ```
 
-… then, you can request all available commands for the configured instance:
+… then, you can view all available commands for the configured instance:
 
 ```bash
 $ orchardcore -help
