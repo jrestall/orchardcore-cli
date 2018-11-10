@@ -47,8 +47,14 @@ export class CommandBinding extends Delegate {
       return {
         command: this.buildCommandString(fieldName, field),
         describe: this.buildDescription(field),
-        handler: (args) => {
-          return this.delegate(operation, fieldName, args)
+        handler: async (args) => {
+          await this.delegate(operation, fieldName, args)
+            .then(result => {
+              console.error(result.data)
+            })
+            .catch((err) => {
+              console.error(err.message)
+            })
         },
         builder: function (yargs) {
           return binding.buildCommandArguments(yargs, field.args)
