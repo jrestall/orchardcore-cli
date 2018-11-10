@@ -10,8 +10,11 @@
             "name": "Launch Program",
             "program": "${workspaceFolder}/bin/orchardcore.js",
             "preLaunchTask": "tsc: build - tsconfig.json",
+            /*"args": [
+                "config", "--host", "http://api.githunt.com/graphql"
+            ],*/
             "args": [
-                "vote", "-h"
+                "-h"
             ],
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"

@@ -17,8 +17,7 @@ import { Delegate, BindingOptions } from 'graphql-binding'
 import { QueryOrMutation } from 'graphql-binding/dist/types'
 import { CommandModule, Argv } from 'yargs'
 
-export default class CommandBinding extends Delegate
-{
+export class CommandBinding extends Delegate {
     commands: CommandModule[]
 
     constructor({ schema, fragmentReplacements, before }: BindingOptions) {
@@ -36,16 +35,14 @@ export default class CommandBinding extends Delegate
         return this.buildCommands('mutation', mutationType.getFields())
     }
     
-    private buildCommands(operation: QueryOrMutation, fields: GraphQLFieldMap<any, any>): CommandModule[] 
-    { 
+    private buildCommands(operation: QueryOrMutation, fields: GraphQLFieldMap<any, any>): CommandModule[] { 
       return Object.entries(fields)
         .map(([fieldName, field]) => {
           return this.buildCommand(operation, fieldName, field)
         })
     }
 
-    private buildCommand(operation: QueryOrMutation, fieldName: string, field: GraphQLField<any, any>): CommandModule 
-    {
+    private buildCommand(operation: QueryOrMutation, fieldName: string, field: GraphQLField<any, any>): CommandModule {
       const binding = this
       return {
         command: this.buildCommandString(fieldName, field),
@@ -59,13 +56,11 @@ export default class CommandBinding extends Delegate
       }
     }
 
-    private buildCommandString(fieldName: string, field: GraphQLField<any, any>) : string 
-    {
+    private buildCommandString(fieldName: string, field: GraphQLField<any, any>) : string {
       let command = fieldName;
 
       const hasArgs = field.args.length > 0
-      if(!hasArgs)
-      {
+      if(!hasArgs) {
         return command;
       }
 
@@ -74,13 +69,11 @@ export default class CommandBinding extends Delegate
       return command
     }
 
-    private buildCommandArgumentsString(args: GraphQLArgument[]) : string 
-    {
+    private buildCommandArgumentsString(args: GraphQLArgument[]) : string {
       let result = ''
 
       args.forEach(arg => {
-        if(arg.type instanceof GraphQLObjectType)
-        {
+        if(arg.type instanceof GraphQLObjectType) {
           const objectFields = (arg.type as GraphQLObjectType).getFields()
           Object.entries(objectFields).forEach(([objectFieldName, objectField]) => {
             result += this.buildCommandArgumentsString(objectField.args);
@@ -95,10 +88,8 @@ export default class CommandBinding extends Delegate
       return result
     }
 
-    private buildDescription(field: GraphQLField<any, any>) : string | false
-    {
-      if(field.isDeprecated === true)
-      {
+    private buildDescription(field: GraphQLField<any, any>) : string | false {
+      if(field.isDeprecated === true) {
         return `[Deprecated] ${field.description}`
       }
 
@@ -110,8 +101,7 @@ export default class CommandBinding extends Delegate
       args.forEach(arg => {
         const nullableType = getNullableType(arg.type)
 
-        if(nullableType instanceof GraphQLObjectType)
-        {
+        if(nullableType instanceof GraphQLObjectType) {
           const objectFields = (nullableType as GraphQLObjectType).getFields()
           Object.entries(objectFields).forEach(([objectFieldName, objectField]) => {
             this.buildCommandArguments(yargs, objectField.args);
@@ -125,8 +115,7 @@ export default class CommandBinding extends Delegate
             default: arg.defaultValue
           }
 
-          if(isEnumType(nullableType))
-          {
+          if(isEnumType(nullableType)) {
             options.choices = this.getArgumentChoices(nullableType)
           }
 
@@ -137,27 +126,21 @@ export default class CommandBinding extends Delegate
       return yargs
     }
 
-    private getArgumentType(type: GraphQLInputType) : PositionalOptionsType
-    {
-      if(!isScalarType(type))
-      {
+    private getArgumentType(type: GraphQLInputType) : PositionalOptionsType {
+      if(!isScalarType(type)) {
         return 'string'
       }
 
       const scalarType = type as GraphQLScalarType
-      if(scalarType.name === 'Boolean')
-      {
+      if(scalarType.name === 'Boolean') {
         return 'boolean'
-      }
-      else if(scalarType.name === 'Int' || scalarType.name === 'Float')
-      {
+      } else if(scalarType.name === 'Int' || scalarType.name === 'Float') {
         return 'number'
       }  
       return 'string'
     }
 
-    private getArgumentChoices(type: GraphQLInputType) : Choices | undefined 
-    {
+    private getArgumentChoices(type: GraphQLInputType) : Choices | undefined {
       const enumValues = (type as GraphQLEnumType).getValues()
       return enumValues.map(enumValue => {
         return enumValue.value
