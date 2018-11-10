@@ -76,3 +76,5 @@ sitemap.xml.gz*~
 
 node_modules
 dist
+obj
+bin/Debug

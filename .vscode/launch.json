@@ -5,17 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch .NET Core CLI",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.1/orchardcore-cli.dll",
+            "args": ["-h"],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Launch Node CLI",
             "program": "${workspaceFolder}/bin/orchardcore.js",
             "preLaunchTask": "tsc: build - tsconfig.json",
-            "args": [
-                "config", "--host", "http://api.githunt.com/graphql"
-            ],
             /*"args": [
-                "-h"
+                "config", "--host", "http://api.githunt.com/graphql"
             ],*/
+            "args": [
+                "-h"
+            ],
             /*"args": [
                 "vote", "repoFullName", "UP"
             ],*/

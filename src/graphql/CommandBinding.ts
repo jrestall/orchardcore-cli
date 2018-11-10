@@ -16,13 +16,16 @@ import { Choices, PositionalOptionsType, PositionalOptions } from 'yargs'
 import { Delegate, BindingOptions } from 'graphql-binding'
 import { QueryOrMutation } from 'graphql-binding/dist/types'
 import { CommandModule, Argv } from 'yargs'
+import { ILogger } from '../utils/ILogger';
 
 export class CommandBinding extends Delegate {
-    commands: CommandModule[]
+    private logger: ILogger
+    public commands: CommandModule[]
 
-    constructor({ schema, fragmentReplacements, before }: BindingOptions) {
+    constructor({ schema, fragmentReplacements, before }: BindingOptions, logger: ILogger) {
       super({ schema, fragmentReplacements, before })
 
+      this.logger = logger
       this.commands = this.mapMutations()
     }
 
@@ -50,10 +53,10 @@ export class CommandBinding extends Delegate {
         handler: async (args) => {
           await this.delegate(operation, fieldName, args)
             .then(result => {
-              console.error(result.data)
+              this.logger.log(result.data)
             })
             .catch((err) => {
-              console.error(err.message)
+              this.logger.error(err.message)
             })
         },
         builder: function (yargs) {
