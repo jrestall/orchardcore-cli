@@ -15,6 +15,11 @@ Securely login and logout with our [OAuth service](https://orchardcore.readthedo
 
 ## Installation
 
+Using [nuget](https://www.nuget.org):
+``` sh
+dotnet tool install --global orchardcore-cli
+```
+
 Using [npm](http://npmjs.org):
 
 ``` sh
@@ -37,7 +42,7 @@ $ orchardcore config --host "https://{your-domain}/graphql"
 … then, you can view all available commands for the configured instance:
 
 ```bash
-$ orchardcore -help
+$ orchardcore -h
 ```
 
 … or, see help for a specific command:
