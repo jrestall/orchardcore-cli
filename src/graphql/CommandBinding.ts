@@ -12,148 +12,139 @@ import {
     getNullableType
   } from 'graphql'
 
-import { Choices, PositionalOptionsType, PositionalOptions } from 'yargs'
+import { Choices, PositionalOptionsType, PositionalOptions, CommandModule, Argv } from 'yargs'
 import { Delegate, BindingOptions } from 'graphql-binding'
 import { QueryOrMutation } from 'graphql-binding/dist/types'
-import { CommandModule, Argv } from 'yargs'
-import { ILogger } from '../utils/ILogger';
+import { ILogger } from '../utils/ILogger'
 
 export class CommandBinding extends Delegate {
-    private logger: ILogger
-    public commands: CommandModule[]
+  private logger: ILogger
+  public commands: CommandModule[]
 
-    constructor({ schema, fragmentReplacements, before }: BindingOptions, logger: ILogger) {
-      super({ schema, fragmentReplacements, before })
+  constructor({ schema, fragmentReplacements, before }: BindingOptions, logger: ILogger) {
+    super({ schema, fragmentReplacements, before })
 
-      this.logger = logger
-      this.commands = this.mapMutations()
+    this.logger = logger
+    this.commands = this.mapMutations()
+  }
+
+  private mapMutations(): CommandModule[] {
+    const mutationType = this.schema.getMutationType()
+    if (!mutationType) {
+      return []
     }
+    return this.buildCommands('mutation', mutationType.getFields())
+  }
 
-    private mapMutations(): CommandModule[] {
-        const mutationType = this.schema.getMutationType()
-        if (!mutationType) {
-            return []
-        }
-    
-        return this.buildCommands('mutation', mutationType.getFields())
-    }
-    
-    private buildCommands(operation: QueryOrMutation, fields: GraphQLFieldMap<any, any>): CommandModule[] { 
-      return Object.entries(fields)
+  private buildCommands(operation: QueryOrMutation, fields: GraphQLFieldMap<any, any>): CommandModule[] {
+    return Object.entries(fields)
         .map(([fieldName, field]) => {
           return this.buildCommand(operation, fieldName, field)
         })
-    }
+  }
 
-    private buildCommand(operation: QueryOrMutation, fieldName: string, field: GraphQLField<any, any>): CommandModule {
-      const binding = this
-      return {
-        command: this.buildCommandString(fieldName, field),
-        describe: this.buildDescription(field),
-        handler: async (args) => {
-          await this.delegate(operation, fieldName, args)
-            .then(result => {
-              this.logger.log(result.data)
-            })
-            .catch((err) => {
-              this.logger.error(err.message)
-            })
-        },
-        builder: function (yargs) {
-          return binding.buildCommandArguments(yargs, field.args)
-        }
+  private buildCommand(operation: QueryOrMutation, fieldName: string, field: GraphQLField<any, any>): CommandModule {
+    const binding = this
+    return {
+      command: this.buildCommandString(fieldName, field),
+      describe: this.buildDescription(field),
+      handler: async (argv) => {
+        argv.promisedResult = this.delegate(operation, fieldName, argv).then(result => {
+          this.logger.log(result.data)
+        })
+        .catch((err) => {
+          this.logger.error(err.message)
+        })
+      },
+      builder: function (yargs) {
+        return binding.buildCommandArguments(yargs, field.args)
       }
     }
+  }
 
-    private buildCommandString(fieldName: string, field: GraphQLField<any, any>) : string {
-      let command = fieldName;
+  private buildCommandString(fieldName: string, field: GraphQLField<any, any>): string {
+    let command = fieldName
 
-      const hasArgs = field.args.length > 0
-      if(!hasArgs) {
-        return command;
-      }
-
-      command += this.buildCommandArgumentsString(field.args)
-
+    const hasArgs = field.args.length > 0
+    if (!hasArgs) {
       return command
     }
 
-    private buildCommandArgumentsString(args: GraphQLArgument[]) : string {
-      let result = ''
+    command += this.buildCommandArgumentsString(field.args)
 
-      args.forEach(arg => {
-        if(arg.type instanceof GraphQLObjectType) {
-          const objectFields = (arg.type as GraphQLObjectType).getFields()
-          Object.entries(objectFields).forEach(([objectFieldName, objectField]) => {
-            result += this.buildCommandArgumentsString(objectField.args);
-          })
-        }
-        else
-        {
-          result += isNullableType(arg.type) || arg.defaultValue ? ` [${arg.name}]` : ` <${arg.name}>`
-        }
-      })
+    return command
+  }
 
-      return result
-    }
+  private buildCommandArgumentsString(args: GraphQLArgument[]): string {
+    let result = ''
 
-    private buildDescription(field: GraphQLField<any, any>) : string | false {
-      if(field.isDeprecated === true) {
-        return `[Deprecated] ${field.description}`
+    args.forEach(arg => {
+      if (arg.type instanceof GraphQLObjectType) {
+        const objectFields = (arg.type as GraphQLObjectType).getFields()
+        Object.entries(objectFields).forEach(([objectFieldName, objectField]) => {
+          result += this.buildCommandArgumentsString(objectField.args)
+        })
+      } else {
+        result += isNullableType(arg.type) || arg.defaultValue ? ` [${arg.name}]` : ` <${arg.name}>`
       }
+    })
 
-      return field.description ? field.description : false
-    }
-    
-    private buildCommandArguments(yargs: Argv, args: GraphQLArgument[]) : Argv
-    {
-      args.forEach(arg => {
-        const nullableType = getNullableType(arg.type)
+    return result
+  }
 
-        if(nullableType instanceof GraphQLObjectType) {
-          const objectFields = (nullableType as GraphQLObjectType).getFields()
-          Object.entries(objectFields).forEach(([objectFieldName, objectField]) => {
-            this.buildCommandArguments(yargs, objectField.args);
-          })
-        }
-        else
-        {
-          const options:PositionalOptions = {
-            describe: arg.description != null ? arg.description : undefined,
-            type: this.getArgumentType(nullableType),
-            default: arg.defaultValue
-          }
-
-          if(isEnumType(nullableType)) {
-            options.choices = this.getArgumentChoices(nullableType)
-          }
-
-          yargs.positional(arg.name, options)
-        }
-      });
-
-      return yargs
+  private buildDescription(field: GraphQLField<any, any>): string | false {
+    if (field.isDeprecated === true) {
+      return `[Deprecated] ${field.description}`
     }
 
-    private getArgumentType(type: GraphQLInputType) : PositionalOptionsType {
-      if(!isScalarType(type)) {
-        return 'string'
+    return field.description ? field.description : false
+  }
+
+  private buildCommandArguments(yargs: Argv, args: GraphQLArgument[]): Argv {
+    args.forEach(arg => {
+      const nullableType = getNullableType(arg.type)
+
+      if (nullableType instanceof GraphQLObjectType) {
+        const objectFields = (nullableType as GraphQLObjectType).getFields()
+        Object.entries(objectFields).forEach(([objectFieldName, objectField]) => {
+          this.buildCommandArguments(yargs, objectField.args)
+        })
+      } else {
+        const options: PositionalOptions = {
+          describe: arg.description != null ? arg.description : undefined,
+          type: this.getArgumentType(nullableType),
+          default: arg.defaultValue
+        }
+
+        if (isEnumType(nullableType)) {
+          options.choices = this.getArgumentChoices(nullableType)
+        }
+
+        yargs.positional(arg.name, options)
       }
+    })
 
-      const scalarType = type as GraphQLScalarType
-      if(scalarType.name === 'Boolean') {
-        return 'boolean'
-      } else if(scalarType.name === 'Int' || scalarType.name === 'Float') {
-        return 'number'
-      }  
+    return yargs
+  }
+
+  private getArgumentType(type: GraphQLInputType): PositionalOptionsType {
+    if (!isScalarType(type)) {
       return 'string'
     }
 
-    private getArgumentChoices(type: GraphQLInputType) : Choices | undefined {
-      const enumValues = (type as GraphQLEnumType).getValues()
-      return enumValues.map(enumValue => {
-        return enumValue.value
-      });
+    const scalarType = type as GraphQLScalarType
+    if (scalarType.name === 'Boolean') {
+      return 'boolean'
+    } else if (scalarType.name === 'Int' || scalarType.name === 'Float') {
+      return 'number'
     }
+    return 'string'
+  }
+
+  private getArgumentChoices(type: GraphQLInputType): Choices | undefined {
+    const enumValues = (type as GraphQLEnumType).getValues()
+    return enumValues.map(enumValue => {
+      return enumValue.value
+    })
+  }
 }
-  
