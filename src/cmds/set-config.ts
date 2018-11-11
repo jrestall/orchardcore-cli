@@ -1,5 +1,5 @@
 import { Config } from '../Config'
-import { App } from '../App';
+import { App } from '../App'
 
 export const command = 'config'
 

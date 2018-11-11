@@ -8,8 +8,8 @@ module.exports = async function(callback, ...args: string[]) {
   const logger = new StringLogger()
   App.logger = logger
 
-  await App.run(args, function(err, output) {
+  await App.run(args, function(_err, output) {
     const response = logger.logs + output
-    callback(err, response)
+    callback(null /* error */, response)
   })
 }

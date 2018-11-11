@@ -36,7 +36,6 @@ export class App {
         App.handleCallback(callback, err, argv, output)
       } else {
         if (output) App.logger.log(output)
-        if (err) App.logger.error(err)
       }
     })
   }
