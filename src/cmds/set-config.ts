@@ -1,4 +1,5 @@
 import { Config } from '../Config'
+import { App } from '../App';
 
 export const command = 'config'
 
@@ -15,5 +16,5 @@ export const builder = (yargs) => {
 
 export const handler = async (argv) => {
   await Config.saveConfig({ host: argv.host })
-  console.log(`Config set successfully`)
+  App.logger.success(`Config set successfully`)
 }

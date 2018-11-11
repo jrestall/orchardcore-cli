@@ -1,4 +1,4 @@
 import { App } from './App'
 
 // Will be called by nodejs
-App.run(process.argv)
+App.run(process.argv.slice(2))

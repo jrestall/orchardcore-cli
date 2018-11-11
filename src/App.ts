@@ -26,7 +26,7 @@ export class App {
     const config = await Config.loadConfig()
     if (!config || !config.host) {
       this.logger.error('\nPlease first configure an Orchard Core host by running:\n')
-      this.logger.error('    orchardcore config --host "https://{domain}/graphql"')
+      this.logger.error('    orchardcore config --host "https://{domain}/graphql"\n')
     } else {
       await new YargsCommandLoader(yargs.default, config, this.logger).load()
     }
