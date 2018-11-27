@@ -44,7 +44,8 @@
     "apollo-link-context": "^1.0.9",
     "graphql-tools": "^4.0.3",
     "mz": "^2.7.0",
-    "find-up": "^3.0.0"
+    "find-up": "^3.0.0",
+    "chalk": "^2.4.1"
   },
   "yargs": {
     "boolean-negation": false

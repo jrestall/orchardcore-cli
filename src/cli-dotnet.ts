@@ -4,10 +4,12 @@ import { StringLogger } from './utils/StringLogger'
 // Will be called by dotnet cli
 
 module.exports = async function(callback, ...args: string[]) {
-  console.log(args)
-
+  // Make the logger a string so that we can return output to dotnet
   const logger = new StringLogger()
-  await App.run(args, logger)
+  App.logger = logger
 
-  callback(/* error */ null, logger.logs)
+  await App.run(args, function(_err, output) {
+    const response = logger.logs + output
+    callback(null /* error */, response)
+  })
 }

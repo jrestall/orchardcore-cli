@@ -23,7 +23,7 @@
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
     <Exec Command="npm install" />
-    <Exec Command="node run-script build" />
+    <Exec Command="npm run-script build" />
   </Target>
 
 </Project>
